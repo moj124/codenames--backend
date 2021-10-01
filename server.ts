@@ -2,6 +2,7 @@ import { Client } from "pg";
 import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
+import {words} from "./words";
 
 config(); //Read .env file lines as though they were env vars.
 
@@ -29,6 +30,22 @@ client.connect();
 app.get("/", async (req, res) => {
   const dbres = await client.query('select * from categories');
   res.json(dbres.rows);
+});
+
+app.post("/download", async (req,res) => {
+  try {
+    const text = 'INSERT INTO words(word) VALUES($1)';
+  
+    words.words.map(async element => await client.query(text, [element]))
+
+    // console.log(words.words)
+    res.status(201).json({
+      status: "success"
+    });
+  
+  } catch (err) {
+    console.error(err.message);
+  }
 });
 
 
