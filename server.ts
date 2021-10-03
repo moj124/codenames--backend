@@ -1,7 +1,7 @@
 import { Client } from "pg";
 import { config } from "dotenv";
-import { generateWords } from "./utils/generateWords";
-import {shuffle} from "./utils/shuffle";
+import { generateWords } from "./src/utils/generateWords";
+import {shuffle} from "./src/utils/shuffle";
 import express from "express";
 import cors from "cors";
 
