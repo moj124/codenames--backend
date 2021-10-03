@@ -1,8 +1,9 @@
 import { Client } from "pg";
 import { config } from "dotenv";
+import { generateWords } from "./utils/generateWords";
+import {shuffle} from "./utils/shuffle";
 import express from "express";
 import cors from "cors";
-import {words} from "./words";
 
 config(); //Read .env file lines as though they were env vars.
 
@@ -32,21 +33,37 @@ app.get("/", async (req, res) => {
   res.json(dbres.rows);
 });
 
-app.post("/download", async (req,res) => {
+app.get("/generate", async (req, res) => {
   try {
-    const text = 'INSERT INTO words(word) VALUES($1)';
-  
-    words.words.map(async element => await client.query(text, [element]))
-
-    // console.log(words.words)
+    const dbres = await client.query('select * from words');
+    res.json(dbres.rows);
     res.status(201).json({
-      status: "success"
+      status: "success",
+      data: shuffle(generateWords(dbres.rows,false))
     });
-  
+
   } catch (err) {
     console.error(err.message);
   }
-});
+  
+
+})
+
+// app.post("/download", async (req,res) => {
+//   try {
+//     const text = 'INSERT INTO words(word) VALUES($1)';
+  
+//     words.words.map(async element => await client.query(text, [element]))
+
+//     // console.log(words.words)
+//     res.status(201).json({
+//       status: "success"
+//     });
+  
+//   } catch (err) {
+//     console.error(err.message);
+//   }
+// });
 
 
 //Start the server on the given port
