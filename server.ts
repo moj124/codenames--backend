@@ -36,7 +36,6 @@ app.get("/", async (req, res) => {
 app.get("/generate", async (req, res) => {
   try {
     const dbres = await client.query('select * from words');
-    res.json(dbres.rows);
     res.status(201).json({
       status: "success",
       data: shuffle(generateWords(dbres.rows,false))
