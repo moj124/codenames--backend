@@ -33,18 +33,19 @@ app.get("/", async (req, res) => {
   res.json(dbres.rows);
 });
 
-// app.get("/generateWords", async (req, res) => {
-//   try {
-//     const dbres = await client.query('select * from words');
-//     res.status(201).json({
-//       status: "success",
-//       data: shuffle(generateWords(dbres.rows,false))
-//     });
+app.get("/:session", async (req, res) => {
+  try {
+    const {session} = req.params;
+    const dbres = await client.query('select word, color, ishidden from session_data where session = $1',[session]);
+    res.status(201).json({
+      status: "success",
+      data: dbres.rows
+    });
 
-//   } catch (err) {
-//     console.error(err.message);
-//   }
-// })
+  } catch (err) {
+    console.error(err.message);
+  }
+})
 
 app.get("/generateSession", async (req, res) => {
   try {
