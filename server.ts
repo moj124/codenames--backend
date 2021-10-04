@@ -4,6 +4,7 @@ import { generateWords } from "./src/utils/generateWords";
 import {shuffle} from "./src/utils/shuffle";
 import express from "express";
 import cors from "cors";
+import {Word} from "./src/types/Word";
 
 config(); //Read .env file lines as though they were env vars.
 
@@ -36,7 +37,7 @@ app.get("/", async (req, res) => {
 app.get("/game/:session", async (req, res) => {
   try {
     const {session} = req.params;
-    const dbres = await client.query('select word, color, ishidden from session_data where session = $1',[session]);
+    const dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1',[session]);
     res.status(201).json({
       status: "success",
       data: dbres.rows
@@ -74,6 +75,19 @@ app.get("/generateSession", async (req, res) => {
     console.error(err.message);
   }
 })
+
+app.put("/game/:session", async (req, res) => {
+  try {
+    const { session } = req.params;
+    const { boardState } = req.body;
+    const text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
+    boardState.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
+
+    res.json("Words was updated!");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 // app.post("/download", async (req,res) => {
 //   try {
