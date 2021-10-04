@@ -56,7 +56,8 @@ app.get("/generateSession", async (req, res) => {
     const words = shuffle(generateWords(dbres.rows,false));
 
     const text = 'INSERT INTO sessions(session_id, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
-  
+    
+    console.log(words)
     words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
 
     res.status(201).json({
