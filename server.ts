@@ -51,7 +51,7 @@ app.get("/generateSession", async (req, res) => {
   try {
     let dbres = await client.query('select gen_random_uuid()');
     const session = dbres.rows[0].gen_random_uuid;
-
+    console.log(session)
     dbres = await client.query('select * from words');
 
     const words = shuffle(generateWords(dbres.rows,false));
