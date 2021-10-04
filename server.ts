@@ -79,10 +79,8 @@ app.get("/generateSession", async (req, res) => {
 app.put("/game/:session", async (req, res) => {
   try {
     const { session } = req.params;
-    const { boardState } = req.body;
-    console.log(req.body)
     const text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
-    boardState.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
+    req.body.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
 
     res.json("Words was updated!");
   } catch (err) {
