@@ -33,12 +33,27 @@ app.get("/", async (req, res) => {
   res.json(dbres.rows);
 });
 
-app.get("/generate", async (req, res) => {
+app.get("/generateWords", async (req, res) => {
   try {
     const dbres = await client.query('select * from words');
     res.status(201).json({
       status: "success",
       data: shuffle(generateWords(dbres.rows,false))
+    });
+
+  } catch (err) {
+    console.error(err.message);
+  }
+  
+
+})
+
+app.get("/generateSession", async (req, res) => {
+  try {
+    const dbres = await client.query('select gen_random_uuid()');
+    res.status(201).json({
+      status: "success",
+      session: dbres.rows
     });
 
   } catch (err) {
