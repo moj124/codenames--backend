@@ -1,8 +1,8 @@
 import { Color } from "../types/Color";
 
 export function shuffle(
-  array: { word: string; color: Color; ishidden: boolean }[]
-): { word: string; color: Color; ishidden: boolean }[] {
+  array: {word_id: number; word: string; color: Color; ishidden: boolean }[]
+): {word_id: number; word: string; color: Color; ishidden: boolean }[] {
   let currentIndex = array.length,
     randomIndex;
 
