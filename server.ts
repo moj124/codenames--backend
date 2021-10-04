@@ -53,7 +53,7 @@ app.get("/generateSession", async (req, res) => {
     const dbres = await client.query('select gen_random_uuid()');
     res.status(201).json({
       status: "success",
-      session: dbres.rows
+      session: dbres.rows[0].gen_random_uuid
     });
 
   } catch (err) {
