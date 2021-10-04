@@ -29,11 +29,6 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
-app.get("/", async (req, res) => {
-  const dbres = await client.query('select * from words');
-  res.json(dbres.rows);
-});
-
 app.get("/game/:session", async (req, res) => {
   try {
     const {session} = req.params;
@@ -85,6 +80,31 @@ app.put("/game/:session", async (req, res) => {
     res.json("Words was updated!");
   } catch (err) {
     console.error(err.message);
+  }
+});
+
+app.get("/game/:session/next", async (req,res) =>{
+  try {
+    const {session} = req.params;
+
+    await client.query("DELETE FROM session_data WHERE session = $1", [
+      session
+    ]);
+
+    const dbres = await client.query('select * from words');
+
+    const words = shuffle(generateWords(dbres.rows,false));
+
+    const text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
+    
+    words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
+
+    res.status(201).json({
+      status: "success",
+      data: words
+    });
+  } catch (err) {
+    console.log(err.message);
   }
 });
 
