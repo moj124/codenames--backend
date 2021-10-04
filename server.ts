@@ -98,7 +98,7 @@ app.get("/game/:session/next", async (req,res) =>{
     const text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
     words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
-
+    console.log(words)
     res.status(201).json({
       status: "success",
       data: words
