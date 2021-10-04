@@ -52,17 +52,17 @@ app.get("/generateSession", async (req, res) => {
     let dbres = await client.query('select gen_random_uuid()');
     const session = dbres.rows[0].gen_random_uuid;
     console.log(session)
-    dbres = await client.query('select * from words');
+    // dbres = await client.query('select * from words');
 
-    const words = shuffle(generateWords(dbres.rows,false));
+    // const words = shuffle(generateWords(dbres.rows,false));
 
-    let text = 'INSERT INTO session(session) VALUES($1)';
+    // let text = 'INSERT INTO session(session) VALUES($1)';
 
-    await client.query(text,[session]);
+    // await client.query(text,[session]);
 
-    text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
+    // text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
-    words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
+    // words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
 
     res.status(201).json({
       status: "success",
