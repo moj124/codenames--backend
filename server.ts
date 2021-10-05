@@ -51,7 +51,7 @@ app.get("/generateSession", async (req, res) => {
     // console.log(dbres.rows);
     dbres = await client.query('select * from words');
 
-    const words = shuffle(generateWords(dbres.rows,false));
+    const words = generateWords(dbres.rows,false);
 
     let text = 'INSERT INTO session(session) VALUES($1)';
 
@@ -93,7 +93,7 @@ app.get("/game/:session/next", async (req,res) =>{
 
     let dbres = await client.query('select * from words');
 
-    const words = shuffle(generateWords(dbres.rows,false));
+    const words = generateWords(dbres.rows,false);
 
     const text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
