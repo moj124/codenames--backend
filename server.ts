@@ -32,7 +32,7 @@ client.connect();
 app.get("/game/:session", async (req, res) => {
   try {
     const {session} = req.params;
-    const dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1',[session]);
+    const dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1 order by data_id',[session]);
     res.status(201).json({
       status: "success",
       data: dbres.rows
