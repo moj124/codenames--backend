@@ -36,7 +36,7 @@ app.get("/game/:session", async (req, res) => {
 
     const dbres1 = await client.query('select turn from session where session = $1',[session])
     res.status(201).json({
-      status: "success",
+      status: "Get is working",
       data: dbres.rows,
       turn: dbres1.rows[0]
     });
@@ -63,10 +63,10 @@ app.get("/generateSession", async (req, res) => {
 
     text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
-    words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
+    words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,true]))
 
     res.status(201).json({
-      status: "success",
+      status: "Generating next session is working",
       session: session,
       turn: dbres1.rows[0]
     });
@@ -92,12 +92,12 @@ app.get("/game/:session/next", async (req,res) =>{
 
     const text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
-    words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,element.ishidden]))
+    words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,true]))
     
     dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1 order by data_id',[session]);
 
     res.status(201).json({
-      status: "success",
+      status: "Next seems to be working",
       data: dbres.rows,
       turn: !dbres1.rows[0]
     });
