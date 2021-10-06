@@ -33,9 +33,12 @@ app.get("/game/:session", async (req, res) => {
   try {
     const {session} = req.params;
     const dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1 order by data_id',[session]);
+
+    const dbres1 = await client.query('select turn from session where session = $1',[session])
     res.status(201).json({
       status: "success",
-      data: dbres.rows
+      data: dbres.rows,
+      turn: dbres1.rows[0]
     });
 
   } catch (err) {
@@ -47,11 +50,12 @@ app.get("/generateSession", async (req, res) => {
   try {
     let dbres = await client.query('select gen_random_uuid()');
     const session = dbres.rows[0].gen_random_uuid;
-    // const session = "";
-    // console.log(dbres.rows);
+
     dbres = await client.query('select * from words');
 
-    const words = shuffle(generateWords(dbres.rows,false));
+    const dbres1 = await client.query('select turn from session where session = $1',[session])
+
+    const words = shuffle(generateWords(dbres.rows,dbres1.rows[0]));
 
     let text = 'INSERT INTO session(session) VALUES($1)';
 
@@ -63,7 +67,8 @@ app.get("/generateSession", async (req, res) => {
 
     res.status(201).json({
       status: "success",
-      session: session
+      session: session,
+      turn: dbres1.rows[0]
     });
 
   } catch (err) {
@@ -74,10 +79,17 @@ app.get("/generateSession", async (req, res) => {
 app.put("/game/:session", async (req, res) => {
   try {
     const { session } = req.params;
-    const text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
-    req.body.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
+    let text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
 
-    res.json("Words was updated!");
+    if(req.body.data){
+      req.body.data.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
+    }
+
+    text = 'UPDATE session SET turn = $1 WHERE session = $2'
+
+    await client.query(text,[req.body.turn,session])
+
+    res.json("Session data was updated!");
   } catch (err) {
     console.error(err.message);
   }
@@ -93,7 +105,9 @@ app.get("/game/:session/next", async (req,res) =>{
 
     let dbres = await client.query('select * from words');
 
-    const words = shuffle(generateWords(dbres.rows,false));
+    const dbres1 = await client.query('select turn from session where session = $1',[session])
+
+    const words = shuffle(generateWords(dbres.rows,!dbres1.rows[0]));
 
     const text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
@@ -103,7 +117,8 @@ app.get("/game/:session/next", async (req,res) =>{
 
     res.status(201).json({
       status: "success",
-      data: dbres.rows
+      data: dbres.rows,
+      turn: !dbres1.rows[0]
     });
   } catch (err) {
     console.log(err.message);
