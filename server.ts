@@ -81,7 +81,7 @@ app.put("/game/:session", async (req, res) => {
     const { session } = req.params;
     let text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
 
-    if(req.body.data){
+    if(req.body.data !== undefined){
       req.body.data.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
     }
 
