@@ -76,25 +76,6 @@ app.get("/generateSession", async (req, res) => {
   }
 })
 
-app.put("/game/:session", async (req, res) => {
-  try {
-    const { session } = req.params;
-    let text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
-
-    if(Object.keys(req.body).length === 2){
-      req.body.data.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
-    }
-
-    text = 'UPDATE session SET turn = $1 WHERE session = $2'
-
-    await client.query(text,[req.body.turn,session])
-
-    res.json("Session data was updated!");
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
 app.get("/game/:session/next", async (req,res) =>{
   try {
     const {session} = req.params;
@@ -125,6 +106,26 @@ app.get("/game/:session/next", async (req,res) =>{
   }
 });
 
+app.put("/game/:session", async (req, res) => {
+  try {
+    const { session } = req.params;
+    let text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
+    console.log(req.body)
+    if(Object.keys(req.body).length === 2){
+      req.body.data.map(async (element: Word) => await client.query(text,[element.ishidden,session,element.word_id]))
+    }
+
+    text = 'UPDATE session SET turn = $1 WHERE session = $2'
+
+    await client.query(text,[req.body.turn,session])
+
+    res.json("Session data was updated!");
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+
 // app.post("/download", async (req,res) => {
 //   try {
 //     const text = 'INSERT INTO words(word) VALUES($1)';
@@ -143,6 +144,7 @@ app.get("/game/:session/next", async (req,res) =>{
 
 
 //Start the server on the given port
+
 const port = process.env.PORT;
 if (!port) {
   throw 'Missing PORT environment variable.  Set it in .env file.';
