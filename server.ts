@@ -36,7 +36,7 @@ app.get("/game/:session", async (req, res) => {
 
     const dbres1 = await client.query('select turn from session where session = $1',[session])
 
-    const turn = dbres1.rows[0]
+    const turn = !dbres1.rows[0]
 
     res.status(201).json({
       status: "Get is working",
