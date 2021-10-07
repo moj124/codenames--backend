@@ -35,10 +35,13 @@ app.get("/game/:session", async (req, res) => {
     const dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1 order by data_id',[session]);
 
     const dbres1 = await client.query('select turn from session where session = $1',[session])
+
+    const turn = dbres1.rows[0]
+
     res.status(201).json({
       status: "Get is working",
       data: dbres.rows,
-      turn: dbres1.rows[0]
+      turn
     });
 
   } catch (err) {
@@ -65,10 +68,13 @@ app.get("/generateSession", async (req, res) => {
     
     words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,true]))
 
+    const turn = dbres1.rows[0]
+
+
     res.status(201).json({
       status: "Generating next session is working",
       session: session,
-      turn: dbres1.rows[0]
+      turn
     });
 
   } catch (err) {
@@ -96,10 +102,12 @@ app.get("/game/:session/next", async (req,res) =>{
     
     dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1 order by data_id',[session]);
 
+    const turn = !dbres1.rows[0]
+
     res.status(201).json({
       status: "Next seems to be working",
       data: dbres.rows,
-      turn: !dbres1.rows[0]
+      turn
     });
   } catch (err) {
     console.log(err.message);
