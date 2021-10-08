@@ -56,13 +56,14 @@ app.get("/generateSession", async (req, res) => {
 
     dbres = await client.query('select * from words');
 
+    let text = 'INSERT INTO session(session) VALUES($1)';
+
+    await client.query(text,[session]);
+
     const dbres1 = await client.query('select turn from session where session = $1',[session])
 
     const words = shuffle(generateWords(dbres.rows,dbres1.rows[0].turn));
 
-    let text = 'INSERT INTO session(session) VALUES($1)';
-
-    await client.query(text,[session]);
 
     text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
