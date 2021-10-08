@@ -18,7 +18,7 @@ const herokuSSLSetting = { rejectUnauthorized: false }
 const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: sslSetting,
+  ssl: herokuSSLSetting,
 };
 
 const app = express();
@@ -36,7 +36,7 @@ app.get("/game/:session", async (req, res) => {
 
     const dbres1 = await client.query('select turn from session where session = $1',[session])
 
-    const turn = dbres1.rows[0]
+    const turn = dbres1.rows[0].turn
 
     res.status(201).json({
       status: "Get is working",
@@ -58,7 +58,7 @@ app.get("/generateSession", async (req, res) => {
 
     const dbres1 = await client.query('select turn from session where session = $1',[session])
 
-    const words = shuffle(generateWords(dbres.rows,dbres1.rows[0]));
+    const words = shuffle(generateWords(dbres.rows,dbres1.rows[0].turn));
 
     let text = 'INSERT INTO session(session) VALUES($1)';
 
@@ -68,7 +68,7 @@ app.get("/generateSession", async (req, res) => {
     
     words.map(async element => await client.query(text, [session,element.word_id,element.word,element.color,true]))
 
-    const turn = dbres1.rows[0]
+    const turn = dbres1.rows[0].turn
 
 
     res.status(201).json({
@@ -94,7 +94,9 @@ app.get("/game/:session/next", async (req,res) =>{
 
     const dbres1 = await client.query('select turn from session where session = $1',[session])
 
-    const words = shuffle(generateWords(dbres.rows,!dbres1.rows[0]));
+    await client.query('UPDATE session SET turn = $1 WHERE session = $2',[!dbres1.rows[0].turn,session]);
+
+    const words = shuffle(generateWords(dbres.rows,!dbres1.rows[0].turn));
 
     const text = 'INSERT INTO session_data(session, word_id, word, color, ishidden) VALUES($1,$2,$3,$4,$5)';
     
@@ -102,7 +104,7 @@ app.get("/game/:session/next", async (req,res) =>{
     
     dbres = await client.query('select word_id, word, color, ishidden from session_data where session = $1 order by data_id',[session]);
 
-    const turn = !dbres1.rows[0]
+    const turn = !dbres1.rows[0].turn
 
     res.status(201).json({
       status: "Next seems to be working",
@@ -118,16 +120,13 @@ app.put("/game/:session", async (req, res) => {
   try {
     const { session } = req.params;
     let text = 'UPDATE session_data SET ishidden = $1 WHERE session = $2 and word_id = $3'
-    console.log(req.body.turn, req.body)
-    if(req.body.data){
-      req.body.data.map(async (element: Word) => await client.query(text,[false,session,element.word_id]))
+    const [turn,data] = req.body;
+    if(data){
+      data.map(async (element: Word) => await client.query(text,[false,session,element.word_id]))
     }
 
-    const response = await client.query('SELECT turn FROM session WHERE session = $1',[session]);
-
     text = 'UPDATE session SET turn = $1 WHERE session = $2'
-    console.log(!response.rows[0],session)
-    await client.query(text,[!response.rows[0],session])
+    await client.query(text,[turn,session])
 
     res.json("Session data was updated!");
   } catch (err) {

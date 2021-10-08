@@ -30,7 +30,7 @@ export function generateWords(
         ? Color.Blue
         : index < 24
         ? Color.Gray
-        : !turn
+        : turn
         ? Color.Red
         : Color.Blue;
     return newObj;
