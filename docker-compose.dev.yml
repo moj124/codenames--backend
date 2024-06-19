@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: .
+      target: builder
+      dockerfile: docker/dockerfile
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - 4000:4000
+    depends_on:
+      - db # Ensure 'db' service starts before 'api'
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: codenames
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/postgresql/data # Persist database data
+    ports:
+      - 5432:5432 # Map PostgresSQL port
+
+volumes:
+  db-data: # Define a named volume for PostgreSQL data persistence
+    
