@@ -1,6 +1,6 @@
 import { Client } from "pg";
 import { config } from "dotenv";
-import { generateWords } from "./src/utils/generateWords";
+import { generateWords } from "./src/utils/generateWords";{}
 import {shuffle} from "./src/utils/shuffle";
 import express from "express";
 import cors from "cors";
@@ -15,10 +15,10 @@ config(); //Read .env file lines as though they were env vars.
 // false - when connecting to a local DB
 // { rejectUnauthorized: false } - when connecting to a heroku DB
 const herokuSSLSetting = { rejectUnauthorized: false }
-const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
+const sslSetting = process.env.ENVIRONMENT === 'local' ? false : herokuSSLSetting
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: herokuSSLSetting,
+  ssl: false,
 };
 
 const app = express();

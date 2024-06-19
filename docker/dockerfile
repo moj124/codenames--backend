@@ -1,0 +1,17 @@
+#Build stage
+FROM node:14-alpine as builder
+
+# Create the app directory
+WORKDIR /app
+
+# Install the app dependencies
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 4000
+CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "server.ts"]
