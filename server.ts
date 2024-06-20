@@ -2,8 +2,8 @@ import { Client } from "pg";
 import { config } from "dotenv";
 import { generateWords } from "./src/utils/generateWords";{}
 import {shuffle} from "./src/utils/shuffle";
-import express from "express";
 import cors from "cors";
+import express from "express";
 import {Word} from "./src/types/Word";
 
 config(); //Read .env file lines as though they were env vars.
@@ -18,7 +18,7 @@ const herokuSSLSetting = { rejectUnauthorized: false }
 const sslSetting = process.env.ENVIRONMENT === 'local' ? false : herokuSSLSetting
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
-  ssl: false,
+  ssl: sslSetting,
 };
 
 const app = express();
@@ -27,7 +27,18 @@ app.use(express.json()); //add body parser to each following route handler
 app.use(cors()) //add CORS support to each following route handler
 
 const client = new Client(dbConfig);
-client.connect();
+
+const connectWithRetry = async () => {
+  try {
+    await client.connect();
+    console.log('Connected to the database');
+  }
+  catch(err) {
+    console.error('Failed to connect to the database:', err);
+    console.log('Retrying in 5 seconds...');
+    setTimeout(connectWithRetry,5000);
+  }
+};
 
 app.get("/game/:session", async (req, res) => {
   try {

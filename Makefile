@@ -25,8 +25,8 @@ down:
 
 # starts the images which runs in the an isolated environment
 up-all:
-	${DOCKER_COMPOSE} up -d api
 	${DOCKER_COMPOSE} up -d db
+	${DOCKER_COMPOSE} up -d api
 .PHONY: up-all
 
 serve:
